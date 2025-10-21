@@ -87,3 +87,8 @@ input {
 		color: rgb(255, 0, 255);
 	}
 }
+
+.card:hover {
+	transform: scale(1.03);
+	box-shadow: 0 0 24px rgb(255,0,255), 0 0 8px rgb(100,0,100);
+}
