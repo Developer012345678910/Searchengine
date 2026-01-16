@@ -79,6 +79,7 @@ input {
 	border-radius: 10px;
 	box-shadow: 0px 0px 2px 5px rgb(100, 0, 100);
 	color: white;
+	transition: all ease-in-out 0.5s;
 }
 
 @keyframes glow {
@@ -100,5 +101,5 @@ input {
 
 .card:hover {
 	transform: scale(1.03);
-	box-shadow: 0 0 24px rgb(255,0,255), 0 0 8px rgb(100,0,100);
+	box-shadow: 0 0 24px rgb(255,0,255);
 }
