@@ -1,0 +1,8 @@
+### 🤝 Contributing
+
+You’re welcome to help improve the Nexora Searchengine and support its development.
+
+Available ways to contribute:
+
+- [x] – Report bugs, suggest improvements, or share new ideas  
+- [ ] – Contribute code changes or new features **(It may be coming soon.)**
