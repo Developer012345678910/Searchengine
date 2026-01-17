@@ -1,0 +1,16 @@
+Step 1: Install the required dependencies
+
+pip install -r requirements.txt
+
+Step 2: Run the web crawler
+Use the command below to start the crawler:
+
+python webcrawler.py --start-url /* The URL where crawling begins */ --max-pages /* How many pages should be crawled */ --json-file /* Name of the output file */
+
+Parameter explanation:
+--start-url   The initial website the crawler will visit
+--max-pages   The maximum number of pages the crawler is allowed to process
+--json-file   The filename where the crawled data will be saved in JSON format
+
+Example:
+python webcrawler.py --start-url https://www.w3schools.com/ --max-pages 50 --json-file crawled_data.json
