@@ -1,0 +1,3 @@
+# Ignore the Webcrawler Python Folder for Linguist
+
+webcrawler/* linguist-generated
