@@ -1,3 +1,9 @@
+/* Register the service worker */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js");
+}
+
+/* Fetch the crawled data and store it in db1 */
 let db1 = [];
 
 fetch("crawled_data.json")
