@@ -1,9 +1,15 @@
-/* Add a json db to the Programm (loading) */
-const db1 = [
-    ["GitHub.com", "Where the word builds software"],
-    ["YouTube.com", "Youtube, das Video Portal."]
-];
- 
+let db1 = [];
+
+fetch("crawled_data.json")
+  .then(response => response.json())
+  .then(data => {
+    db1 = data;
+    console.log(db1);
+
+    search("bu"); /* Searching Only !!!!! Works in the fetch Block!!!!!!! */
+  });
+
+
 function search(keyword) {
     for (const website of db1) {
         if(website[0].toLowerCase().includes(keyword.toLowerCase()) == true) {
@@ -18,5 +24,3 @@ function search(keyword) {
         }
     }
 }
-
-search("bu");
