@@ -15,7 +15,7 @@ fetch("crawled_data.json")
     search("bu"); /* Searching Only !!!!! Works in the fetch Block!!!!!!! */
   });
 
-
+/* Search Function */
 function search(keyword) {
     for (const website of db1) {
         if(website[0].toLowerCase().includes(keyword.toLowerCase()) == true) {
