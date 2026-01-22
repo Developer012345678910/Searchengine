@@ -30,3 +30,17 @@ function search(keyword) {
         }
     }
 }
+
+const searchInput = document.getElementById("search-input");
+
+searchInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    const query = searchInput.value.trim();
+
+    if (query.length > 0) {
+      const url = "https://www.google.com/search?q=" + encodeURIComponent(query);
+      window.location.href = url;
+    }
+  }
+});
+
