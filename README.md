@@ -93,7 +93,7 @@ Searchengine/
 
 🤝 Contributing
 
-PRs and ideas are welcome! 🙌 If your PR changes or adds crawl data, please document which seed URL(s) and crawler options you used. See [CONTRIBUTING.md](https://github.com/Developer012345678910/Searchengine?tab=contributing-ov-file) for details.
+PRs and ideas are welcome! 🙌 If your PR changes or adds crawl data, please document which seed URL(s) and crawler options you used. See [CONTRIBUTING.md](https://github.com/Developer012345678910/Searchengine?tab=contributing-ov-file#contributing-to-nexora-searchengine) for details.
 
 ---
 
