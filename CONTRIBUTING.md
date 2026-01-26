@@ -1,6 +1,7 @@
 # Contributing to Nexora Searchengine
 
 Thank you for considering contributing to Nexora Searchengine! Your help is highly appreciated. There are several ways you can get involved and make this project better.
+**Please read the guide before contributing**
 
 ## 🎯 How to Contribute
 
