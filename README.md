@@ -25,7 +25,8 @@ You do **not** need to run the crawler to use the search — a ready-to-use `cra
    git clone https://github.com/Developer012345678910/Searchengine.git
    cd Searchengine
    ```
-2. **Open `index.html` in your browser.**
+2. **Start a sever with  ```python -m http.server 8000```**
+3. **Then open the port in your webbrowser ```localhost:8000```**
 
 If `crawled_data.json` is available in the project directory, the UI will immediately provide search results from that dataset.
 
