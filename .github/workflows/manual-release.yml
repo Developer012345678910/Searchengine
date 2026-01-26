@@ -1,29 +1,29 @@
-name: Manual Release
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Release version (e.g. v1.0.0)"
-        required: true
-      notes:
-        description: "Optional release notes"
-        required: false
+  push:
+    branches:
+      - main
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
 
-      - name: Create GitHub Release (Tag wird automatisch erstellt)
-        uses: softprops/action-gh-release@v1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: Release ${{ github.event.inputs.version }}
-          body: ${{ github.event.inputs.notes }}
-          generate_release_notes: true
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
