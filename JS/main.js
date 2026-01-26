@@ -5,6 +5,8 @@ if ("serviceWorker" in navigator) {
 
 /* Fetch the crawled data and store it in db1 */
 let db1 = [];
+const searchInput = document.getElementById("search-input"); 
+const resultsContainer = document.getElementById("results-container");
 
 fetch("crawled_data.json")
   .then(response => response.json())
@@ -13,20 +15,37 @@ fetch("crawled_data.json")
     console.log(db1);
 
     search("bu"); /* Searching Only !!!!! Works in the fetch Block!!!!!!! */
+    searchInput.addEventListener("input", () =>
+       { search(searchInput.value.trim());
+
+       });
   });
 
 /* Search Function */
 function search(keyword) {
+    resultsContainer.innerHTML = ""; // alte Ergebnisse löschen
+
     for (const website of db1) {
-        if(website[0].toLowerCase().includes(keyword.toLowerCase()) == true) {
-            /* Test if the keyword in the Name of the website */
-            console.log(`Name: ${website[0]}`);; /* Print out the name of the website. */
-            console.log(`Discription: ${website[1]}`); /* Print out the discription of the website. */
-        }
-        if(website[1].toLowerCase().includes(keyword.toLowerCase()) == true) {
-            /* Test if the keyword in the Discription */
-            console.log(`Name: ${website[0]}`);; /* Print out the name of the website. */
-            console.log(`Discription: ${website[1]}`); /* Print out the discription of the website. */
+
+        const url = website[0];
+        const description = website[1];
+
+        if (
+            url.toLowerCase().includes(keyword.toLowerCase()) ||
+            description.toLowerCase().includes(keyword.toLowerCase())
+        ) {
+            const card = document.createElement("div");
+            card.classList.add("card");
+
+            card.innerHTML = `
+                <a href="https://${url}" target="_blank">${url}</a><br>
+                ${description}
+            `;
+
+            resultsContainer.appendChild(card);
         }
     }
 }
+
+
+
