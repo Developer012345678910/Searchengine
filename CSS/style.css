@@ -1,105 +1,142 @@
+/* Standard Theme (Lila) */
+:root {
+    --bg: rgb(50, 0, 50);
+    --bg2: rgb(100, 0, 100);
+    --accent: rgb(255, 0, 255);
+    --text: white;
+}
+
+/* Türkis Theme */
+.turquoise {
+    --bg: rgb(0, 50, 50);
+    --bg2: rgb(0, 100, 100);
+    --accent: rgb(0, 255, 255);
+    --text: white;
+}
+
 * {
-	box-sizing: border-box;
-	padding: 0;
-	margin: 0;
-	font-family: arial;
-	font-size: 3vh;
-	font-weight: 100;
-	color: rgb(0, 0, 0);
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font-family: arial;
+    font-size: 3vh;
+    font-weight: 100;
+    color: rgb(0, 0, 0);
 }
 
 body {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	gap: 2.5vh;
-	background-color: rgb(50, 0, 50);
-	width: 100vw;
-	min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2.5vh;
+    background-color: var(--bg);
+    width: 100vw;
+    min-height: 100vh;
 }
 
 h1 {
-	font-size: 20vh;
-	font-weight: bold;
-	animation: infinite glow 10s;
+    font-size: 20vh;
+    font-weight: bold;
+    animation: infinite glow 10s;
+    color: var(--accent);
 }
 
 h2 {
-	font-weight: bold;
-	color: white;
+    font-weight: bold;
+    color: var(--text);
 }
 
 input {
-	width: 50vw;
-	height: 5vh;
-	color: rgb(255, 0, 255);
-	background-color: rgb(50, 0, 50);
-	box-shadow: 0px 0px 5px 2px rgb(255, 0, 255);
-	border: hidden;
-	border-radius: 10px;
+    width: 50vw;
+    height: 5vh;
+    color: var(--accent);
+    background-color: var(--bg);
+    box-shadow: 0px 0px 5px 2px var(--accent);
+    border: hidden;
+    border-radius: 10px;
+}
+#theme-toggle {
+    padding: 12px 35px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-size: 2.5vh;
+    font-weight: bold;
+    background-color: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 15px var(--accent);
+    transition: 0.3s ease;
+}
+
+#theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px var(--accent);
 }
 
 .categories {
-	width: 50vw;
-	height: 50px;;
-	background-color: rgb(100, 0, 100);
-	border-radius: 10px;
-	text-align: left;
-	font-size: 25px;
-	padding: 10px;
-	margin: 5px;
+    width: 50vw;
+    height: 50px;
+    background-color: var(--bg2);
+    border-radius: 10px;
+    text-align: left;
+    font-size: 25px;
+    padding: 10px;
+    margin: 5px;
+    color: var(--text);
 }
+
 .search-bar {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	gap: 2.5vh;
-	position: absolute;
-	top: 20vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2.5vh;
+    position: absolute;
+    top: 20vh;
 }
 
 .results {
-	width: 50vw;
-	height: 100vh;
-	display: flex;
-	justify-content: start;
-	align-items: start;
-	flex-direction: column;
-	gap: 2.5vh;
-	position: absolute;
-	top: 60vh;
+    width: 50vw;
+    height: 100vh;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    flex-direction: column;
+    gap: 2.5vh;
+    position: absolute;
+    top: 60vh;
 }
 
 .card {
-	width: 50vw;
-	padding: 2.5vh;
-	background-color: rgb(100, 0, 100);
-	border-radius: 10px;
-	box-shadow: 0px 0px 2px 5px rgb(100, 0, 100);
-	color: white;
-	transition: all ease-in-out 0.5s;
-}
-
-@keyframes glow {
-	0% {
-		text-shadow: 0px 0px 0px rgb(100, 0, 100);
-		color: rgb(255, 0, 255);
-	}
-
-	50% {
-		text-shadow: 0px 0px 100px rgb(255, 0, 255);
-		color: rgb(50, 0, 50);
-	}
-
-	100% {
-		text-shadow: 0px 0px 0px rgb(100, 0, 100);
-		color: rgb(255, 0, 255);
-	}
+    width: 50vw;
+    padding: 2.5vh;
+    background-color: var(--bg2);
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 5px var(--bg2);
+    color: var(--text);
+    transition: all ease-in-out 0.5s;
 }
 
 .card:hover {
-	transform: scale(1.03);
-	box-shadow: 0 0 24px rgb(255,0,255);
+    transform: scale(1.03);
+    box-shadow: 0 0 24px var(--accent);
+}
+
+/* Glow Animation */
+@keyframes glow {
+    0% {
+        text-shadow: 0px 0px 0px var(--bg2);
+        color: var(--accent);
+    }
+
+    50% {
+        text-shadow: 0px 0px 100px var(--accent);
+        color: var(--bg);
+    }
+
+    100% {
+        text-shadow: 0px 0px 0px var(--bg2);
+        color: var(--accent);
+    }
 }
