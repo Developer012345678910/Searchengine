@@ -23,7 +23,7 @@ fetch("crawled_data.json")
 
 /* Search Function */
 function search(keyword) {
-    resultsContainer.innerHTML = ""; // alte Ergebnisse löschen
+    resultsContainer.innerHTML = ""; // Delete all old results
 
     for (const website of db1) {
 
