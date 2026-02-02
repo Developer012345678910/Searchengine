@@ -1,7 +1,10 @@
 # Contributing to Nexora Searchengine
+Thank you for considering contributing to **Nexora Searchengine**! Your help is highly appreciated.
 
-Thank you for considering contributing to Nexora Searchengine! Your help is highly appreciated. There are several ways you can get involved and make this project better.
-**Please read the guide before contributing**
+## 📌 Before You Start
+- Read this guide carefully.
+- Familiarize yourself with the repository structure and contribution guidelines.
+
 
 ## 🎯 How to Contribute
 
@@ -42,11 +45,16 @@ Thank you for considering contributing to Nexora Searchengine! Your help is high
 
 ### Frontend Development
 
-- Modify files in `CSS/` and `JS/` directories
-- Open `index.html` in a browser to test
-- Ensure responsive design across different screen sizes
+- **Update styling and behavior**
+  • Edit files in the `CSS/` and `JS/` directories to implement new features or bug fixes.
 
-### Backend Development (Crawler)
+- **Local testing**
+  • Run a simple HTTP server with `python -m http.server 8000` and open `http://localhost:8000` in your browser to test changes.
+
+- **Responsive design**
+  • Verify that the UI adapts correctly on mobile, tablet, and desktop viewports. Use your webbrowser DevTools device toolbar or similar tools for testing.
+
+### The Webcrawler (How to use it)
 
 ```bash
 # Install dependencies
@@ -58,6 +66,7 @@ python webcrawler/webcrawler.py --start-url https://example.com --max-pages 10
 # Run with your test data
 python webcrawler/webcrawler.py --start-url YOUR_URL --max-pages YOUR_LIMIT --json-file test_data.json
 ```
+# Contributions are welcome! Please submit a pull request with new crawled websites.
 
 ## 📋 Code Style Guidelines
 
@@ -67,11 +76,9 @@ python webcrawler/webcrawler.py --start-url YOUR_URL --max-pages YOUR_LIMIT --js
 - Write comments for complex logic
 - Keep CSS organized and DRY (Don't Repeat Yourself)
 
-### Backend (Python)
-- Follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) guidelines
-- Use meaningful function and variable names
-- Include docstrings for functions
-- Keep lines under 120 characters
+### Backend (Not Implemented)
+This project currently has no backend component. If you have ideas or suggestions for adding one, please open an issue and let us discuss how it could be integrated.
+
 
 ### General
 - Write clear, self-documenting code
