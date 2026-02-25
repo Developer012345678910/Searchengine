@@ -8,6 +8,7 @@ import os
 import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 from threading import Lock
 from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
@@ -19,6 +20,103 @@ from urllib3.util.retry import Retry
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+
+class DataManager:
+    """Manages persistent storage of crawled website data with update/upsert capabilities."""
+
+    def __init__(self, json_file: str = "crawled_data.json"):
+        self.json_file = json_file
+        self.data = self._load_data()
+
+    def _load_data(self) -> dict:
+        """Load existing data from JSON file."""
+        if not os.path.exists(self.json_file):
+            return {}
+
+        try:
+            with open(self.json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # Convert old format (list) to new format (dict) if needed
+                if isinstance(data, list):
+                    logger.info("Converting old data format to new format...")
+                    converted = {}
+                    for item in data:
+                        if isinstance(item, list) and len(item) >= 2:
+                            converted[item[0]] = {
+                                "name": item[0],
+                                "title": item[1],
+                                "first_crawled": None,
+                                "last_crawled": None,
+                            }
+                    return converted
+                return data
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Error reading data file: {e}. Starting fresh.")
+            return {}
+
+    def add_or_update(self, name: str, title: str) -> bool:
+        """
+        Add new website or update existing one.
+        Returns True if added, False if updated.
+        """
+        is_new = name not in self.data
+
+        now = datetime.now().isoformat()
+        if is_new:
+            self.data[name] = {
+                "name": name,
+                "title": title,
+                "first_crawled": now,
+                "last_crawled": now,
+            }
+        else:
+            # Update existing entry
+            self.data[name]["title"] = title
+            self.data[name]["last_crawled"] = now
+
+        return is_new
+
+    def get_all(self) -> list[dict]:
+        """Get all website entries as a list."""
+        return list(self.data.values())
+
+    def get_by_name(self, name: str) -> dict | None:
+        """Get a specific website entry by name."""
+        return self.data.get(name)
+
+    def get_stats(self) -> dict:
+        """Get statistics about the stored data."""
+        total = len(self.data)
+        if total == 0:
+            return {"total": 0, "added_today": 0, "updated_today": 0}
+
+        today = datetime.now().date().isoformat()
+        added_today = sum(
+            1
+            for entry in self.data.values()
+            if entry.get("first_crawled", "").startswith(today)
+        )
+        updated_today = sum(
+            1
+            for entry in self.data.values()
+            if entry.get("last_crawled", "").startswith(today)
+        )
+
+        return {
+            "total": total,
+            "added_today": added_today,
+            "updated_today": updated_today,
+        }
+
+    def save(self) -> None:
+        """Save data to JSON file."""
+        try:
+            with open(self.json_file, "w", encoding="utf-8") as f:
+                json.dump(self.data, f, indent=2, ensure_ascii=False)
+            logger.info(f"Data saved to {self.json_file} ({len(self.data)} total entries).")
+        except IOError as e:
+            logger.error(f"Error writing data file: {e}")
 
 
 class MultithreadCrawler:
@@ -38,7 +136,6 @@ class MultithreadCrawler:
         self.max_pages = max_pages
         self.delay = float(delay)
         self.max_workers = max_workers
-        self.json_file = json_file
         self.timeout = timeout
 
         self.headers = {
@@ -52,8 +149,10 @@ class MultithreadCrawler:
         self.to_visit_set = {self.normalize_url(start_url)}
         self.visited = set()
         self.processed_names = set()  # Track processed page names for O(1) lookup
-        self.data = []
         self.lock = Lock()
+
+        # Initialize data manager for persistent storage
+        self.data_manager = DataManager(json_file)
 
         # Initialize session with connection pooling and retry strategy
         self.session = self._create_session()
@@ -75,7 +174,7 @@ class MultithreadCrawler:
         retry_strategy = Retry(
             total=3,
             status_forcelist=[429, 500, 502, 503, 504],
-            method_whitelist=["HEAD", "GET", "OPTIONS"],
+            allowed_methods=["HEAD", "GET", "OPTIONS"],
             backoff_factor=1,
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
@@ -214,11 +313,15 @@ class MultithreadCrawler:
             title, links = self.extract_title_and_links(url, html)
             name = self.make_name_from_url(url)
 
-            # Critical section: add data if not already processed
+            # Critical section: add/update data
             with self.lock:
                 if name not in self.processed_names:
                     self.processed_names.add(name)
-                    self.data.append([name, title])
+                    is_new = self.data_manager.add_or_update(name, title)
+                    if is_new:
+                        logger.debug(f"Added new website: {name}")
+                    else:
+                        logger.debug(f"Updated existing website: {name}")
 
             # Critical section: add new links to queue
             with self.lock:
@@ -230,7 +333,7 @@ class MultithreadCrawler:
                     self.to_visit.append(link)
                     self.to_visit_set.add(link)
 
-    def crawl(self) -> list[list[str]]:
+    def crawl(self) -> list[dict]:
         """Start the multi-threaded crawling process."""
         logger.info(
             f"Starting multi-threaded crawl: {self.start_url} "
@@ -245,45 +348,20 @@ class MultithreadCrawler:
                     logger.error(f"Worker thread error: {e}", exc_info=True)
 
         logger.info(
-            f"Crawl complete: {len(self.visited)} pages visited, {len(self.data)} entries collected."
+            f"Crawl complete: {len(self.visited)} pages visited, "
+            f"{len(self.data_manager.data)} total websites stored."
         )
-        return self.data
+        return self.data_manager.get_all()
 
-    def save_json(self) -> None:
-        """Save crawled data to JSON file, merging with existing data."""
-        try:
-            existing = []
-            if os.path.exists(self.json_file):
-                try:
-                    with open(self.json_file, "r", encoding="utf-8") as f:
-                        existing = json.load(f) or []
-                except (json.JSONDecodeError, IOError) as e:
-                    logger.warning(f"Error reading existing JSON file: {e}. Starting fresh.")
-                    existing = []
-
-            seen = {tuple(item) for item in existing if isinstance(item, list) and len(item) == 2}
-            merged = list(existing)
-
-            for rec in self.data:
-                key = tuple(rec)
-                if key in seen:
-                    continue
-                seen.add(key)
-                merged.append(rec)
-
-            with open(self.json_file, "w", encoding="utf-8") as f:
-                json.dump(merged, f, indent=2, ensure_ascii=False)
-            logger.info(f"Results saved to {self.json_file} ({len(merged)} total entries).")
-        except IOError as e:
-            logger.error(f"Error writing JSON file: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error saving JSON: {e}")
+    def save(self) -> None:
+        """Save crawled data to persistent storage."""
+        self.data_manager.save()
 
 
 def main() -> None:
     """Parse arguments and run the crawler."""
     parser = argparse.ArgumentParser(
-        description="Multi-threaded web crawler that extracts page titles and links as JSON"
+        description="Multi-threaded web crawler that adds/updates websites with metadata"
     )
     parser.add_argument(
         "--start-url",
@@ -311,13 +389,18 @@ def main() -> None:
     parser.add_argument(
         "--json-file",
         default="crawled_data.json",
-        help="Output JSON file for results",
+        help="Output JSON file for storing website data",
     )
     parser.add_argument(
         "--timeout",
         type=int,
         default=10,
         help="Request timeout in seconds",
+    )
+    parser.add_argument(
+        "--show-all",
+        action="store_true",
+        help="Display all stored websites after crawling",
     )
     args = parser.parse_args()
 
@@ -332,18 +415,37 @@ def main() -> None:
         )
 
         data = crawler.crawl()
-        crawler.save_json()
+        crawler.save()
 
-        print("\n=== Crawl Summary ===")
-        print(f"Start URL: {args.start_url}")
-        print(f"Domain: {crawler.domain}")
-        print(f"Collected entries: {len(data)}")
-        print(f"JSON file: {args.json_file}")
+        stats = crawler.data_manager.get_stats()
 
-        print("\n=== JSON Output (Sample) ===")
-        print(json.dumps(data[:10], ensure_ascii=False, indent=2))
-        if len(data) > 10:
-            print(f"... and {len(data) - 10} more entries")
+        print("\n" + "=" * 50)
+        print("CRAWL SUMMARY")
+        print("=" * 50)
+        print(f"Start URL:        {args.start_url}")
+        print(f"Domain:           {crawler.domain}")
+        print(f"Pages visited:    {len(crawler.visited)}")
+        print(f"New websites:     {stats.get('added_today', 0)}")
+        print(f"Updated websites: {stats.get('updated_today', 0)}")
+        print(f"Total stored:     {stats.get('total', 0)}")
+        print(f"Data file:        {args.json_file}")
+        print("=" * 50)
+
+        if args.show_all and len(data) > 0:
+            print("\n=== All Stored Websites ===")
+            for i, entry in enumerate(data, 1):
+                print(f"\n{i}. {entry['name']}")
+                print(f"   Title: {entry['title']}")
+                print(f"   First crawled: {entry.get('first_crawled', 'N/A')}")
+                print(f"   Last crawled:  {entry.get('last_crawled', 'N/A')}")
+        else:
+            print("\n=== Latest Websites (Sample) ===")
+            for entry in data[:5]:
+                print(f"\n{entry['name']}")
+                print(f"  Title: {entry['title']}")
+            if len(data) > 5:
+                print(f"\n... and {len(data) - 5} more websites")
+
     except ValueError as e:
         logger.error(f"Invalid input: {e}")
         parser.print_help()
